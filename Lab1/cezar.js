@@ -17,10 +17,10 @@ if (
   console.log('Wrong task flag');
 }
 
-const key = parseInt(keys.split(' ')[0], 10);
-const affineFactor = parseInt(keys.split(' ')[1], 10);
+const keyFromFile = parseInt(keys.split(' ')[0], 10);
+const affineFactorFromFile = parseInt(keys.split(' ')[1], 10);
 
-function cipherAffine(str) {
+function cipherAffine(str, key, affineFactor) {
   const m = 26;
   let solved = '';
   for (let i = 0; i < str.length; i++) {
@@ -29,7 +29,7 @@ function cipherAffine(str) {
       console.log('Klucz A jest niepoprawny');
       break;
     }
-    if (key >= 26 || key <= 0) {
+    if (key >= 26 || key < 0) {
       console.log('Klucz B jest niepoprawny');
       break;
     }
@@ -52,7 +52,7 @@ function cipherAffine(str) {
   return solved;
 }
 
-function solveAffine(str) {
+function solveAffine(str, key, affineFactor) {
   const m = 26;
   const solveKey = reverse(affineFactor, m);
   let solved = '';
@@ -62,7 +62,7 @@ function solveAffine(str) {
       console.log('Klucz A jest niepoprawny');
       break;
     }
-    if (key >= 26 || key <= 0) {
+    if (key >= 26 || key < 0) {
       console.log('Klucz B jest niepoprawny');
       break;
     }
@@ -78,18 +78,22 @@ function solveAffine(str) {
       solved += str[i];
     }
   }
-  fs.writeFile('decrypt.txt', solved, (err) => {
-    if (err) throw err;
-  });
 
   return solved;
 }
 
-function cipherCesar(str) {
+function writeAndSolveAffine(str, key, affineFactor) {
+  const solved = solveAffine(str, key, affineFactor);
+  fs.writeFile('decrypt.txt', solved, (err) => {
+    if (err) throw err;
+  });
+}
+
+function cipherCesar(str, key) {
   let solved = '';
   for (let i = 0; i < str.length; i++) {
     let asciiNum = str[i].charCodeAt();
-    if (key >= 26 || key <= 0) {
+    if (key >= 26 || key < 0) {
       console.log('Klucz jest niepoprawny');
       break;
     }
@@ -121,11 +125,11 @@ function cipherCesar(str) {
   return solved;
 }
 
-function solveCesar(str) {
+function solveCesar(str, key) {
   let solved = '';
   for (let i = 0; i < str.length; i++) {
     let asciiNum = str[i].charCodeAt();
-    if (key >= 26 || key <= 0) {
+    if (key >= 26 || key < 0) {
       console.log('Klucz jest niepoprawny');
       break;
     }
@@ -146,11 +150,15 @@ function solveCesar(str) {
       solved += str[i];
     }
   }
+
+  return solved;
+}
+
+function writeAndSolveCesar(str, key) {
+  const solved = solveCesar(str, key);
   fs.writeFile('decrypt.txt', solved, (err) => {
     if (err) throw err;
   });
-
-  return solved;
 }
 
 function nwd(a, b) {
@@ -179,18 +187,161 @@ function reverse(a, m) {
   return found;
 }
 
-let testString = 'ZYzy';
-let solveString = 'XWHBIIBOhbiiboxw';
+function breakCesar(str) {
+  let i = 0;
+  let solutions = '';
+  while (i <= 25) {
+    solutions =
+      solutions +
+      'key: ' +
+      i.toString() +
+      ' solution: ' +
+      solveCesar(str, i) +
+      '\n';
+    i = i + 1;
+  }
+  fs.writeFile('extra.txt', solutions, (err) => {
+    if (err) throw err;
+  });
+  return solutions;
+}
 
-// console.log(text);
-console.log(cipherAffine(text));
-console.log(solveAffine(cipherAffine(text)));
-// console.log(cipherCesar(text));
-// console.log(solveCesar(cipherCesar(text)));
-// console.log(solve(testString));
-// console.log(solve(solve(testString)));
+function breakAffine(str) {
+  let i = 0;
+  let solutions = '';
+  const affineKeys = [1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25];
+  while (i <= 25) {
+    let j = 0;
+    while (j < affineKeys.length) {
+      solutions =
+        solutions +
+        'key: ' +
+        i.toString() +
+        ' affineKey: ' +
+        affineKeys[j].toString() +
+        ' solution: ' +
+        solveAffine(str, i, affineKeys[j]) +
+        '\n';
+      j = j + 1;
+    }
+    i = i + 1;
+  }
+  fs.writeFile('extra.txt', solutions, (err) => {
+    if (err) throw err;
+  });
+  return solutions;
+}
 
-// console.log(process.argv[2]);
-// console.log(process.argv[3]);
+function breakCesarAndFindKey(str, ogText) {
+  let i = 0;
+  let solutions = '';
+  while (i <= 25) {
+    solutions =
+      solutions +
+      'key: ' +
+      i.toString() +
+      ' solution: ' +
+      solveCesar(str, i) +
+      '\n';
+    i = i + 1;
+  }
+  fs.writeFile('extra.txt', solutions, (err) => {
+    if (err) throw err;
+  });
+  const foundSolutions = solutions.split('\n');
+  let iterator = 0;
+  let trueKey = 'Key not found';
+  while (iterator < foundSolutions.length) {
+    const splitSolution = foundSolutions[iterator].split(' solution: ');
+    const currentSolutionText = splitSolution[1];
+    if (currentSolutionText == ogText) {
+      trueKey = splitSolution[0];
+    }
+    iterator = iterator + 1;
+  }
+  fs.writeFile('key-found.txt', trueKey.split(' ')[1], (err) => {
+    if (err) throw err;
+  });
+  return solutions;
+}
 
-// console.log(reverse(3, 7));
+function breakAffineAndFindKey(str, ogText) {
+  let i = 0;
+  let solutions = '';
+  const affineKeys = [1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25];
+  while (i <= 25) {
+    let j = 0;
+    while (j < affineKeys.length) {
+      solutions =
+        solutions +
+        'key: ' +
+        i.toString() +
+        ' affineKey: ' +
+        affineKeys[j].toString() +
+        ' solution: ' +
+        solveAffine(str, i, affineKeys[j]) +
+        '\n';
+      j = j + 1;
+    }
+    i = i + 1;
+  }
+  fs.writeFile('extra.txt', solutions, (err) => {
+    if (err) throw err;
+  });
+  const foundSolutions = solutions.split('\n');
+  let iterator = 0;
+  let trueKeys = 'Keys not found';
+  let trueKey = 'Key not found';
+  let trueAffineKey = 'Affine key not found';
+  while (iterator < foundSolutions.length) {
+    const splitSolution = foundSolutions[iterator].split(' solution: ');
+    const currentSolutionText = splitSolution[1];
+    if (currentSolutionText == ogText) {
+      trueKeys = splitSolution[0].split(' ');
+      trueKey = trueKeys[1];
+      trueAffineKey = trueKeys[3];
+    }
+    iterator = iterator + 1;
+  }
+  fs.writeFile('key-found.txt', `${trueKey} ${trueAffineKey}`, (err) => {
+    if (err) throw err;
+  });
+  return solutions;
+}
+
+if (cipherType == '-c') {
+  if (taskType == '-e') {
+    cipherCesar(text, keyFromFile);
+  }
+  if (taskType == '-d') {
+    writeAndSolveCesar(cipherCesar(text, keyFromFile), keyFromFile);
+  }
+  if (taskType == '-j') {
+    breakCesarAndFindKey(cipherCesar(text, keyFromFile), text);
+  }
+  if (taskType == '-k') {
+    breakCesar(cipherCesar(text, keyFromFile));
+  }
+}
+
+if (cipherType == '-a') {
+  if (taskType == '-e') {
+    cipherAffine(text, keyFromFile, affineFactorFromFile);
+  }
+  if (taskType == '-d') {
+    writeAndSolveAffine(
+      cipherAffine(text, keyFromFile, affineFactorFromFile),
+      keyFromFile,
+      affineFactorFromFile
+    );
+  }
+  if (taskType == '-j') {
+    breakAffineAndFindKey(
+      cipherAffine(text, keyFromFile, affineFactorFromFile),
+      text
+    );
+  }
+  if (taskType == '-k') {
+    breakAffine(cipherAffine(text, keyFromFile, affineFactorFromFile));
+  }
+}
