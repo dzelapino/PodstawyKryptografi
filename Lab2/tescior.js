@@ -79,6 +79,7 @@ function xor(a, b) {
   }
 
 console.log(addBinary(binString, binSpace))
+console.log(addBinary(addBinary(binString, binSpace), binSpace))
 
 const fs = require('fs');
 
@@ -95,21 +96,23 @@ try {
 } catch (error) {
 }
 
-function textCipherer(someText, someKey) {
+function textCipherer(someText2, someKey) {
   let preparedText = '';
   let lineCharCounter = 0
   let i = 0
+  let someText = someText2.replace(/(\r\n|\n|\r)/gm, "")
   while (i < someText.length) {
       if (lineCharCounter == 64) {
         // LINIJKA DO ODKOMENTOWANIA JAK STWIERDZI ZE JEDNAK MA BYC Z NEWLINE
           // preparedText = preparedText + '\n'
           lineCharCounter = 0
       }
-      if(someText[i] == '\n') {
-          i = i + 1
-      }
+      // else if(someText[i] == '\n') {
+      //     i = i + 1
+      // }
       else {
-          preparedText = preparedText + someText[i] + String.fromCharCode(parseInt(addBinary(someText[lineCharCounter].charCodeAt().toString(2), (someKey[lineCharCounter].charCodeAt().toString(2))), 2))
+          preparedText = preparedText + String.fromCharCode(parseInt(addBinary(someText[i].charCodeAt().toString(2), (someKey[lineCharCounter].charCodeAt().toString(2))), 2))
+          // preparedText = preparedText + "| " + lineCharCounter + ": " + addBinary(someText[i].charCodeAt().toString(2), (someKey[lineCharCounter].charCodeAt().toString(2)))
           i = i + 1
           lineCharCounter= lineCharCounter + 1
       }
@@ -120,6 +123,6 @@ function textCipherer(someText, someKey) {
   });
 }
 
-textCipherer(plain, key)
+// textCipherer(plain, key)
 
 // console.log(plain.length)
