@@ -1,51 +1,39 @@
 const fs = require('fs');
-const binaryLetter = `01110011`;
-const binarySpace = "00100000";
-
-// const outputStr = String.fromCharCode(parseInt(binary, 2));
-
-function getOutputFromBinary(binary) {
-  return String.fromCharCode(parseInt(binary, 2));
-}
-
-const binary = getOutputFromBinary(binarySpace);
-const binary2 = getOutputFromBinary(binaryLetter);
-
-// console.log(binary);
-// console.log(binary2);
-
-// console.log(binaryLetter[0]);
-
-function spaceChecker(binaryChar) {
-  if (binaryChar[1] == '0') {
-    console.log("spacja");
-  } else {
-    console.log("no spacja");
-  }
-  // console.log(binaryChar)
-}
 
 let crypto;
+let keyToFind = '';
 
 try {
   crypto = fs.readFileSync('./crypto.txt').toString();
 } catch (error) {
 }
 
-// console.log(crypto)
-
-// someText[lineCharCounter].charCodeAt().toString(2)
-
 function codeBreaker(textBin) {
   let i = 0
+  let spaceFound = false
+  let foundKey;
   while (i < textBin.length) {
-    spaceChecker(textBin[i])
-    // console.log(someText[i].charCodeAt().toString(2))
+    let localChar = textBin[i]
+    if(localChar.charCodeAt().toString(2).length == 7 && localChar.charCodeAt().toString(2)[0] == 1 && localChar.charCodeAt().toString(2)[1] == 0) {
+      spaceFound = true;
+      foundKey = (localChar.charCodeAt() ^ 32)
+      keyToFind = keyToFind + String.fromCharCode(foundKey)
+      break
+    }
     i = i + 1
   }
-}
 
-// codeBreaker(crypto)
+  // decoding bin
+  // let j = 0
+  // if (spaceFound == true) {
+
+  //   while (j < textBin.length) {
+  //     textBin[j] = String.fromCharCode((textBin[j].charCodeAt() ^ foundKey))
+  //   }
+
+  // }
+
+}
 
 function codeBinder(someText) {
   let binI = 0
@@ -63,7 +51,7 @@ function codeBinder(someText) {
     }
     else {
       
-      codeBins[columnIterator].push(someText[i].charCodeAt().toString(2))
+      codeBins[columnIterator].push(someText[i])
 
       columnIterator = columnIterator + 1
       i = i + 1
@@ -79,6 +67,8 @@ function codeBinder(someText) {
 }
 
 codeBinder(crypto)
+
+console.log(keyToFind)
 
 // let testArrays = [ [1,2,3], [4,5,6,7,8] , [9]]
 // let testI = 0
