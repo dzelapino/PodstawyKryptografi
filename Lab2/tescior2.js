@@ -24,15 +24,21 @@ function codeBreaker(textBin) {
   }
 
   // decoding bin
-  // let j = 0
-  // if (spaceFound == true) {
+  let j = 0
+  if (spaceFound == true) {
+    while (j < textBin.length) {
+      textBin[j] = String.fromCharCode((textBin[j].charCodeAt() ^ foundKey))
+      j = j + 1
+    }
+  }
+  else {
+    while (j < textBin.length) {
+      textBin[j] = '?'
+      j = j + 1
+    }
+  }
 
-  //   while (j < textBin.length) {
-  //     textBin[j] = String.fromCharCode((textBin[j].charCodeAt() ^ foundKey))
-  //   }
-
-  // }
-
+  return textBin
 }
 
 function codeBinder(someText) {
@@ -57,22 +63,42 @@ function codeBinder(someText) {
       i = i + 1
     }
   }
-  // console.log(codeBins.length)
+  console.log(codeBins.length)
   let lenTest = 0
+  let finalTextBins = [];
   while (lenTest < codeBins.length) {
     // console.log(codeBins[lenTest].length)
-    codeBreaker(codeBins[lenTest])
+    finalTextBins.push(
+      codeBreaker(codeBins[lenTest])
+    )
     lenTest = lenTest + 1
   }
+  console.log(finalTextBins.length)
+  console.log(someText.length)
+  console.log(finalTextBins.flat().length)
+  let finalText = ''
+  let finalI = 0
+  let finalTextPointer = 0
+  let finalColumnIterator= 0
+  while (finalI < finalTextBins.flat().length) {
+    if (finalColumnIterator == 64) {
+      finalColumnIterator = 0
+      finalTextPointer = finalTextPointer + 1
+    }
+    else {
+      
+      finalText = finalText + finalTextBins[finalColumnIterator][finalTextPointer]
+
+      finalColumnIterator = finalColumnIterator + 1
+      finalI = finalI + 1
+    }
+  }
+  console.log(finalText)
+  fs.writeFile('finalTest.txt', finalText, (err) => {
+    if (err) throw err;
+});
 }
 
 codeBinder(crypto)
 
 console.log(keyToFind)
-
-// let testArrays = [ [1,2,3], [4,5,6,7,8] , [9]]
-// let testI = 0
-// while (testI < testArrays.length) {
-//   console.log(testArrays[testI].length)
-//   testI += 1
-// }
