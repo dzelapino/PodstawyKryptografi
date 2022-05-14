@@ -1,8 +1,34 @@
 const cipherType = process.argv[2];
 const taskType = process.argv[3];
 const fs = require('fs');
-const text = fs.readFileSync('./plain.txt').toString();
-const keys = fs.readFileSync('./key.txt').toString();
+
+
+let crypto;
+let text;
+let keys;
+let keyFromFile;
+let affineFactorFromFile;
+
+try {
+  crypto = fs.readFileSync('./crypto.txt').toString();
+} catch (error) {
+}
+
+try {
+  text = fs.readFileSync('./plain.txt').toString();
+} catch (error) {
+}
+
+try {
+  keys = fs.readFileSync('./key.txt').toString();
+  keyFromFile = parseInt(keys.split(' ')[0], 10);
+  affineFactorFromFile = parseInt(keys.split(' ')[1], 10);
+} catch (error) {
+}
+
+// const text = fs.readFileSync('./plain.txt').toString();
+// const keys = fs.readFileSync('./key.txt').toString();
+// const crypto = fs.readFileSync('./crypto.txt').toString();
 
 if (cipherType != '-c' && cipherType != '-a') {
   console.log('Wrong cipher flag');
@@ -17,8 +43,8 @@ if (
   console.log('Wrong task flag');
 }
 
-const keyFromFile = parseInt(keys.split(' ')[0], 10);
-const affineFactorFromFile = parseInt(keys.split(' ')[1], 10);
+// const keyFromFile = parseInt(keys.split(' ')[0], 10);
+// const affineFactorFromFile = parseInt(keys.split(' ')[1], 10);
 
 function cipherAffine(str, key, affineFactor) {
   const m = 26;
@@ -314,13 +340,13 @@ if (cipherType == '-c') {
     cipherCesar(text, keyFromFile);
   }
   if (taskType == '-d') {
-    writeAndSolveCesar(cipherCesar(text, keyFromFile), keyFromFile);
+    writeAndSolveCesar(crypto, keyFromFile);
   }
   if (taskType == '-j') {
-    breakCesarAndFindKey(cipherCesar(text, keyFromFile), text);
+    breakCesarAndFindKey(crypto, text);
   }
   if (taskType == '-k') {
-    breakCesar(cipherCesar(text, keyFromFile));
+    breakCesar(crypto);
   }
 }
 
@@ -330,18 +356,18 @@ if (cipherType == '-a') {
   }
   if (taskType == '-d') {
     writeAndSolveAffine(
-      cipherAffine(text, keyFromFile, affineFactorFromFile),
+      crypto,
       keyFromFile,
       affineFactorFromFile
     );
   }
   if (taskType == '-j') {
     breakAffineAndFindKey(
-      cipherAffine(text, keyFromFile, affineFactorFromFile),
+      crypto,
       text
     );
   }
   if (taskType == '-k') {
-    breakAffine(cipherAffine(text, keyFromFile, affineFactorFromFile));
+    breakAffine(crypto);
   }
 }
