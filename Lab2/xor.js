@@ -151,7 +151,9 @@ function codeBreaker(textBin) {
     let finalI = 0
     let finalTextPointer = 0
     let finalColumnIterator= 0
-    while (finalI < finalTextBins.flat().length) {
+    // console.log(someText.length)
+    // console.log(finalTextBins.flat().length)
+    while (finalI < someText.length) {
       if (finalColumnIterator == 64) {
         finalColumnIterator = 0
         finalTextPointer = finalTextPointer + 1
